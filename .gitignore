@@ -1,1 +1,2 @@
-/part3/examples/node_modules
+node_modules
+.env
