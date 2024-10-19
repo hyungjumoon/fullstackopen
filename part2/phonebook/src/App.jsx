@@ -1,58 +1,12 @@
 import { useState, useEffect } from 'react'
 import './index.css'
+
+import Persons from './components/Persons'
+import PersonForm from './components/PersonForm'
+import Filter from './components/Filter'
+import Notification from './components/Notification'
+
 import personService from './services/persons'
-
-const Filter = ({search, handleSearchChange}) => {
-  return (
-    <div>
-      filter shown with <input value={search} onChange={handleSearchChange} />
-    </div>
-  )
-}
-
-const PersonForm = ({addPerson, newName, handleNameChange, newNumber, handleNumberChange}) => {
-  return (
-    <form onSubmit={addPerson}>
-      <div>
-        name: <input value={newName} onChange={handleNameChange}/>
-      </div>
-      <div>
-        number: <input value={newNumber} onChange={handleNumberChange}/>
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  )
-}
-
-const Persons = ({personsToShow, toggleDelete}) => {
-  return (
-    <ul>
-      {personsToShow.map(person => 
-        <li key={person.id}>{person.name} {person.number} <button onClick={() => toggleDelete(person.id)}>delete</button></li>
-      )}
-    </ul>
-  )
-}
-
-const Notification = ({ message, error }) => {
-  if (message === null) {
-    return null
-  }
-  if (error) {
-    return (
-      <div className='error'>
-        {message}
-      </div>
-    )
-  }
-  return (
-    <div className='notification'>
-      {message}
-    </div>
-  )
-}
 
 const App = () => {
   const [persons, setPersons] = useState([])
