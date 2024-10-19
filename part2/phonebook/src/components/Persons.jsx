@@ -3,7 +3,7 @@ const Persons = ({personsToShow, toggleDelete}) => {
     <ul>
       {personsToShow.map(person => 
         <li key={person.id}>
-          {person.name} {person.number} <button onClick={() => toggleDelete(person.id)}>delete</button>
+          {person.name} {person.number} <button onClick={() => toggleDelete(person)}>delete</button>
         </li>
       )}
     </ul>

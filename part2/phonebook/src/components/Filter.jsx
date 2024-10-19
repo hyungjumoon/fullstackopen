@@ -1,7 +1,7 @@
-const Filter = ({search, handleSearchChange}) => {
+const Filter = ({search, setSearch}) => {
   return (
     <div>
-      filter shown with <input value={search} onChange={handleSearchChange} />
+      filter shown with <input value={search} onChange={({target}) => setSearch(target.value)} />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import './index.css'
+// import './index.css'
 
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
@@ -13,8 +13,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [isError, setIsError] = useState(true)
+  const [info, setInfo] = useState({ message: null})
   
   useEffect(() => {
     personService
@@ -25,92 +24,99 @@ const App = () => {
   }, [])
   // console.log('render', persons.length, 'persons')
 
+  const notify = (message, type='info') => {
+    setInfo({
+      message, type
+    })
+
+    setTimeout(() => {
+      setInfo({ message: null} )
+    }, 3000)
+  }
+
+  const clean = () => {
+    setNewName('')
+    setNewNumber('')
+  }
+
+  const updatePerson = (person) => {
+    const check = confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+    if(check) {
+      const changedPerson = { ...person, number: newNumber }
+      personService
+        .update(changedPerson.id, changedPerson)
+        .then(returnedPerson => {
+          setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
+          notify(`phone number of ${person.name} updated!`)
+        })
+        .catch(() => {
+          notify(`${person.name} has already been removed`, 'error')
+          setPersons(persons.filter(p => p.id !== person.id))
+        })
+    }
+    clean()
+  }
+
   const addPerson = (event) => {
     event.preventDefault()
-    const contains = persons.map(person => person.name === newName).reduce((a,b) => a||b)
+    const person = persons.find(p => p.name === newName)
 
-    if (contains) {
-      if(confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-        const person = persons.find(p => p.name === newName)
-        const changedPerson = { ...person, number: newNumber }
-        personService
-          .update(changedPerson.id, changedPerson)
-          .then(returnedPerson => {
-            setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
-          })
-          .catch(error => {
-            setIsError(true)
-            setErrorMessage(
-              `Information of ${newName} has already been removed from server`
-            )
-            setTimeout(() => {
-              setErrorMessage(null)
-            }, 5000)
-            setPersons(persons.filter(p => p.name !== newName))
-          })
-      }
+    if (person) {
+      updatePerson(person)
+      return
     } else {
       const personObject = {
         name: newName,
         number: newNumber,
       }
-
       personService
         .create(personObject)
         .then(returnedPerson => {
-          setIsError(false)
-          setErrorMessage(
-            `Added ${returnedPerson.name}`
-          )
-          setTimeout(() => {
-            setErrorMessage(null)
-          }, 5000)
-
           setPersons(persons.concat(returnedPerson))
-          setNewName('')
-          setNewNumber('')
+          notify(`${returnedPerson.name} added!`)
         })
+        .catch(error => {
+          notify(error.response.data.error, 'error')
+        })
+      clean()
     }
   }
 
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
-
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value)
-  }
-
-  const handleSearchChange = (event) => {
-    setSearch(event.target.value)
-  }
-  
-  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
-
-  const toggleDelete = (id) => {
-    const person = persons.find(p => p.id === id)
-    if(confirm(`Delete ${person.name}?`)) {
+  const toggleDelete = (person) => {
+    const check = confirm(`Delete ${person.name}?`)
+    if(check) {
       personService
-        .remove(id)
-        .then(returnedPerson => {
-          setPersons(persons.filter(p => p.id !== returnedPerson.id))
+        .remove(person.id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== person.id))
+          notify(
+            `'${person.name}' has been deleted`
+          )
         })
-        .catch(error => {
-          alert(
-            `the note '${person.name}' was already deleted from server`
+        .catch(() => {
+          notify(
+            `'${person.name}' was already deleted from server`, 'error'
           )
           setPersons(persons.filter(p => p.id !== id))
         })
     }
   }
 
+  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(search.toLowerCase()))
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={errorMessage} error={isError} />
-      <Filter search={search} handleSearchChange={handleSearchChange} />
+      <Notification info={info} />
+      <Filter search={search} setSearch={setSearch} />
       <h2>add a new</h2>
-      <PersonForm addPerson={addPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
+      <PersonForm 
+        addPerson={addPerson} 
+        newName={newName} 
+        setNewName={setNewName} 
+        newNumber={newNumber} 
+        setNewNumber={setNewNumber} 
+      />
       <h2>Numbers</h2>
       <Persons personsToShow={personsToShow} toggleDelete={toggleDelete} />
     </div>
