@@ -1,3 +1,6 @@
+var _ = require('lodash');
+
+
 const dummy = (blogs) => {
   return 1
 }
@@ -24,6 +27,36 @@ const favoriteBlog = (blogs) => {
   return {author: ans[0].author, title: ans[0].title, likes: ans[0].likes}
 }
 
+const mostBlogs = (blogs) => {
+  if (blogs.length === 0) return {}
+  const authors = _.groupBy(blogs, (x => x.author))
+  let ans = {author: '', blogs: 0}
+  for (const prop in authors) {
+    if (authors[prop].length > ans.blogs) {
+      ans.author = prop
+      ans.blogs = authors[prop].length
+    }
+  }
+  return ans
+}
+
+const mostLikes = (blogs) => {
+  if (blogs.length === 0) return {}
+  const authors = _.groupBy(blogs, (x => x.author))
+  const like = _.mapValues(authors,
+    function(posts) {
+      return _.reduce(_.map(posts, (x=>x.likes)), ((a,b) => a+b), 0)
+    })
+  let ans = {author: '', likes: 0}
+  for (const prop in like) {
+    if (like[prop] > ans.likes) {
+      ans.author = prop
+      ans.likes = like[prop]
+    }
+  }
+  return ans
+}
+
 module.exports = {
-  dummy, totalLikes, favoriteBlog
+  dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes
 }

@@ -116,3 +116,57 @@ describe('favorite blog', () => {
     )
   })
 })
+
+describe('mostBlogs', () => {
+  test('of empty list', () => {
+    const result = listHelper.mostBlogs([])
+    assert.deepStrictEqual(result, {})
+  })
+  test('when list has only one blog, equals the blog', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog)
+    assert.deepStrictEqual(
+      result, 
+      {
+        author: "Edsger W. Dijkstra",
+        blogs: 1
+      }
+    )
+  })
+  test('of a bigger list is calculated correctly', () => {
+    const result = listHelper.mostBlogs(blogs)
+    assert.deepStrictEqual(
+      result, 
+      {
+        author: "Robert C. Martin",
+        blogs: 3
+      }
+    )
+  })
+})
+
+describe('mostLikes', () => {
+  test('of empty list', () => {
+    const result = listHelper.mostLikes([])
+    assert.deepStrictEqual(result, {})
+  })
+  test('when list has only one blog, equals the blog', () => {
+    const result = listHelper.mostLikes(listWithOneBlog)
+    assert.deepStrictEqual(
+      result, 
+      {
+        author: "Edsger W. Dijkstra",
+        likes: 5
+      }
+    )
+  })
+  test('of a bigger list is calculated correctly', () => {
+    const result = listHelper.mostLikes(blogs)
+    assert.deepStrictEqual(
+      result, 
+      {
+        author: "Edsger W. Dijkstra",
+        likes: 17
+      }
+    )
+  })
+})
