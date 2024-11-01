@@ -1,9 +1,10 @@
 POST http://localhost:3003/api/blogs
-content-type: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY3MjU0YWQ3MmU1MzI4YWVlNjA0YWEyNyIsImlhdCI6MTczMDQ5OTI3OH0.mK26hFzesSCiicyQD6FtzO4kIHhnKtY3iI-ysa2gepQ
 
 {
-  "title": "huh",
-  "author": "they",
-  "url": "kis",
+  "title": "bye there",
+  "author": "uhh me",
+  "url": "coms",
   "likes": 193
 }
