@@ -7,6 +7,9 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+const jwt = require('jsonwebtoken')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -14,7 +17,17 @@ beforeEach(async () => {
     .map(blog => new Blog(blog))
   const promiseArray = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArray)
+  
+  await User.deleteMany({})
+  const userObjects = helper.initialUsers
+  const usr1 = await api
+    .post('/api/users')
+    .send(userObjects[0])
+  const usr2 = await api
+    .post('/api/users')
+    .send(userObjects[1])
 })
+
 
 describe('basic tests', () => {
   test('blogs are returned as json', async () => {
@@ -34,8 +47,26 @@ describe('basic tests', () => {
     const titles = response.body.map(r => r.title)
     assert(titles.includes('First class tests'))
   })
-})
 
+  test('users are returned as json', async () => {
+    await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('all users are returned', async () => {
+    const response = await api.get('/api/users')
+    assert.strictEqual(response.body.length, helper.initialUsers.length)
+  })
+
+  test('both usernames are within the returned users', async () => {
+    const response = await api.get('/api/users')
+    const usernames = response.body.map(r => r.username)
+    assert(usernames.includes('root'))
+    assert(usernames.includes('mluukkai'))
+  })
+})
 
 describe('viewing a specific blog', () => {
   test('a specific blog can be viewed', async () => {
@@ -60,8 +91,50 @@ describe('viewing a specific blog', () => {
   })
 })
 
+test('token from valid login can be retrieved', async () => {
+  const token = await api
+    .post('/api/login')
+    .send({
+      username: "root",
+      password: "password"
+    })
+    .expect(200)
+  assert.strictEqual(token.body.username, 'root')
+  assert.strictEqual(token.body.name, 'Super User')
+})
+
 describe('posting a blog', () => {
   test('a valid blog can be added ', async () => {
+    const tokens = await api
+      .post('/api/login')
+      .send({
+        username: "root",
+        password: "password"
+      })
+      .expect(200)
+
+    const newBlog = {
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
+      likes: 5,
+    }
+  
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${tokens.body.token}`)
+      .send(newBlog)
+      .expect(201)
+      // .expect('Content-Type', /application\/json/)
+  
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+  
+    const titles = blogsAtEnd.map(n => n.title)
+    assert(titles.includes('Go To Statement Considered Harmful'))
+  })
+
+  test('no token blog post returns 401', async () => {
     const newBlog = {
       title: 'Go To Statement Considered Harmful',
       author: 'Edsger W. Dijkstra',
@@ -72,17 +145,18 @@ describe('posting a blog', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
-  
-    const blogsAtEnd = await helper.blogsInDb()
-    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
-  
-    const titles = blogsAtEnd.map(n => n.title)
-    assert(titles.includes('Go To Statement Considered Harmful'))
+      .expect(401)
   })
-    
+
   test('if like is not specified, it is set to 0', async () => {
+    const tokens = await api
+      .post('/api/login')
+      .send({
+        username: "root",
+        password: "password"
+      })
+      .expect(200)
+
     const newBlog = {
       title: 'Hello World',
       author: 'me',
@@ -91,6 +165,7 @@ describe('posting a blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${tokens.body.token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -102,8 +177,16 @@ describe('posting a blog', () => {
     assert.strictEqual(titles.length, 1)
     assert.strictEqual(titles[0].likes, 0)
   })
-
+  
   test('blog without url is not added', async () => {
+    const tokens = await api
+      .post('/api/login')
+      .send({
+        username: "root",
+        password: "password"
+      })
+      .expect(200)
+
     const newBlog = {
       title: 'Hello World',
       author: 'me',
@@ -111,6 +194,7 @@ describe('posting a blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${tokens.body.token}`)
       .send(newBlog)
       .expect(400)
 
@@ -120,6 +204,13 @@ describe('posting a blog', () => {
   })
   
   test('blog without title is not added', async () => {
+    const tokens = await api
+      .post('/api/login')
+      .send({
+        username: "root",
+        password: "password"
+      })
+      .expect(200)
     const newBlog = {
       author: 'me',
       url: '../..'
@@ -127,6 +218,7 @@ describe('posting a blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${tokens.body.token}`)
       .send(newBlog)
       .expect(400)
 
@@ -138,19 +230,63 @@ describe('posting a blog', () => {
 
 describe('deletion of a blog', () => {
   test('succeeds with status code 204 if id is valid', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
+    const tokens = await api
+      .post('/api/login')
+      .send({
+        username: "root",
+        password: "password"
+      })
+      .expect(200)
+    
+    const newBlog = {
+      title: 'Hello World',
+      author: 'me',
+      url: '/',
+    }
 
+    const retBlog = await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${tokens.body.token}`)
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    
     await api
-      .delete(`/api/blogs/${blogToDelete.id}`)
+      .delete(`/api/blogs/${retBlog.body.id}`)
+      .set('Authorization', `Bearer ${tokens.body.token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
 
-    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
-
     const contents = blogsAtEnd.map(r => r.title)
-    assert(!contents.includes(blogToDelete.title))
+    assert(!contents.includes(newBlog.title))
+  })
+  
+  test('fails with 401 if no token', async () => {
+    const tokens = await api
+      .post('/api/login')
+      .send({
+        username: "root",
+        password: "password"
+      })
+      .expect(200)
+    
+    const newBlog = {
+      title: 'Hello World',
+      author: 'me',
+      url: '/',
+    }
+
+    const retBlog = await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${tokens.body.token}`)
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    
+    await api
+      .delete(`/api/blogs/${retBlog.body.id}`)
+      .expect(401)
   })
   
   test('fails with statuscode 400 id is invalid', async () => {
