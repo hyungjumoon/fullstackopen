@@ -11,8 +11,8 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const blogFormRef = useRef()
@@ -40,7 +40,7 @@ const App = () => {
       })
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
-      ) 
+      )
       blogService.setToken(user.token)
       setUser(user)
       setUsername('')
@@ -55,7 +55,7 @@ const App = () => {
 
   const logout = (event) => {
     event.preventDefault()
-    window.localStorage.removeItem('loggedBlogappUser') 
+    window.localStorage.removeItem('loggedBlogappUser')
     blogService.setToken(null)
     setUser(null)
   }
@@ -95,7 +95,7 @@ const App = () => {
       }, 5000)
     })
   }
-  
+
   const loginForm = () => (
     <Togglable buttonLabel='login'>
       <LoginForm
@@ -107,7 +107,7 @@ const App = () => {
       />
     </Togglable>
   )
-  
+
   const blogForm = () => (
     <Togglable buttonLabel='new blog' ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />

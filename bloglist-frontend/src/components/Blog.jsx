@@ -17,7 +17,7 @@ const Blog = ({ blog, putLike, removeBlog }) => {
   const toggleVisibility = () => {
     setVisible(!visible)
   }
-  
+
   const addLike = (event) => {
     event.preventDefault()
     putLike({
@@ -29,7 +29,7 @@ const Blog = ({ blog, putLike, removeBlog }) => {
       path: blog.id
     })
   }
-  
+
   const removeButton = () => {
     if (removeBlog) {
       const deleteBlog = (event) => {
@@ -40,8 +40,8 @@ const Blog = ({ blog, putLike, removeBlog }) => {
         }
       }
       return (<button onClick={deleteBlog}>remove</button>)
-    } 
-    return null 
+    }
+    return null
   }
 
   return (
@@ -56,7 +56,7 @@ const Blog = ({ blog, putLike, removeBlog }) => {
         {blog.user ? blog.user.name : 'no user, malformed blog object'} <br />
         {removeButton()}
       </div>
-    </div>  
+    </div>
   )
 }
 
