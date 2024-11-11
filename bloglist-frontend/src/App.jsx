@@ -20,7 +20,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -72,6 +72,29 @@ const App = () => {
         }, 5000)
       })
   }
+
+  const addLike = (blogObject) => {
+    blogService
+      .update(blogObject)
+      .then(returnedBlog => {
+        const updatedBlogs = blogs.filter(blog => blog.id !== returnedBlog.id)
+        setBlogs(updatedBlogs.concat(returnedBlog))
+        setErrorMessage(`a like has been added to the blog ${returnedBlog.title} by ${returnedBlog.author} added`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      })
+  }
+
+  const removeBlog = (id) => {
+    blogService.remove(id).then(returnedBlog => {
+      setBlogs(blogs.filter(blog => blog.id !== id))
+      setErrorMessage(`the blog with id ${id} has been deleted`)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    })
+  }
   
   const loginForm = () => (
     <Togglable buttonLabel='login'>
@@ -91,25 +114,37 @@ const App = () => {
     </Togglable>
   )
 
-  if (user === null) {
+  const myBlogs = () => {
+    const blogIds = blogs.filter(testBlog => testBlog.user && testBlog.user.username === user.username).map(blog => blog.id)
+    const helper = (curBlog) => {
+      if (blogIds.includes(curBlog.id)) {
+        return <Blog key={curBlog.id} blog={curBlog} putLike={addLike} removeBlog={removeBlog} />
+      }
+      return <Blog key={curBlog.id} blog={curBlog} putLike={addLike} removeBlog={null} />
+    }
+    return (
+      blogs.map(helper)
+    )
+  }
+
+  if (user !== null) {
+    blogs.sort((a,b) => b.likes - a.likes)
     return (
       <div>
-        <h2>Log in to application</h2>
+        <h2>blogs</h2>
         <Notification message={errorMessage} />
-        {loginForm()}
+        <div>{user.name} logged in <button onClick={logout}>logout</button></div>
+        {blogForm()}
+        {myBlogs()}
       </div>
     )
   }
 
   return (
     <div>
-      <h2>blogs</h2>
+      <h2>Log in to application</h2>
       <Notification message={errorMessage} />
-      <div>{user.name} logged in <button onClick={logout}>logout</button></div>
-      {blogForm()}
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      {loginForm()}
     </div>
   )
 }
