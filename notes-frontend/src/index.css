@@ -3,6 +3,12 @@ h1 {
   font-style: italic;
 }
 
+.note {
+  color: grey;
+  padding-top: 3px;
+  font-size: 15px;
+}
+
 .error {
   color: red;
   background: lightgrey;

@@ -3,8 +3,8 @@ import NoteForm from './NoteForm'
 import userEvent from '@testing-library/user-event'
 
 test('<NoteForm /> updates parent state and calls onSubmit', async () => {
-  const createNote = vi.fn()
   const user = userEvent.setup()
+  const createNote = vi.fn()
 
   render(<NoteForm createNote={createNote} />)
 
