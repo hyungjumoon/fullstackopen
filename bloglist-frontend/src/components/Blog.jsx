@@ -45,7 +45,7 @@ const Blog = ({ blog, putLike, removeBlog }) => {
   }
 
   return (
-    <div style={blogStyle} className='blog'>
+    <div style={blogStyle} className='blog' data-testid='blog'>
       <div style={hideWhenVisible} className='togglableLike'>
         {blog.title} {blog.author} <button onClick={toggleVisibility}>view</button>
       </div>
