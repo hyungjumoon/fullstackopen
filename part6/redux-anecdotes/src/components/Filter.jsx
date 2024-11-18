@@ -5,7 +5,6 @@ const Filter = () => {
   const dispatch = useDispatch()
   
   const handleChange = (event) => {
-    // input-field value is in variable event.target.value
     event.preventDefault()
     dispatch(setFilter(event.target.value))
   }
