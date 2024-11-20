@@ -7,6 +7,11 @@ const getAll = async () => {
   return response.data
 }
 
+const get = async (id) => {
+  const response = await axios.get(`${baseUrl}/${id}`)
+  return response.data
+}
+
 const getId = () => (100000 * Math.random()).toFixed(0)
 
 const createNew = async (content) => {
@@ -19,4 +24,9 @@ const createNew = async (content) => {
   return response.data
 }
 
-export default { getAll, createNew }
+const putVote = async (id, newObject) => {
+  const request = axios.put(`${baseUrl}/${id}`, newObject)
+  return request.then(response => response.data)
+}
+
+export default { getAll, createNew, putVote, get }
