@@ -1,4 +1,7 @@
+import { useNotiValue } from '../NotiContext'
+
 const Notification = () => {
+  const noti = useNotiValue()
   const style = {
     border: 'solid',
     padding: 10,
@@ -6,11 +9,11 @@ const Notification = () => {
     marginBottom: 5
   }
   
-  if (true) return null
+  if (noti === '') return <div></div>
 
   return (
     <div style={style}>
-      
+      {noti}
     </div>
   )
 }
