@@ -13,9 +13,3 @@ export const useField = (type) => {
     onChange
   }
 }
-
-// modules can have several named exports
-
-export const useAnotherHook = () => {
-  // ...
-}
