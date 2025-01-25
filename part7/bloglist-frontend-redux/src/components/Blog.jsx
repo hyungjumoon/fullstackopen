@@ -20,18 +20,19 @@ const Blog = ({ blog, putLike, removeBlog }) => {
 
   const addLike = (event) => {
     event.preventDefault()
-    putLike({
-      title: blog.title,
-      author: blog.author,
-      url: blog.url,
-      likes: blog.likes+1,
-      user: blog.user.id,
-      path: blog.id
-    })
+    // putLike({
+    //   title: blog.title,
+    //   author: blog.author,
+    //   url: blog.url,
+    //   likes: blog.likes+1,
+    //   user: blog.user.id,
+    //   path: blog.id
+    // })
+    putLike(blog.id)
   }
 
   const removeButton = () => {
-    if (removeBlog) {
+    if (removeBlog !== null) {
       const deleteBlog = (event) => {
         event.preventDefault()
         const certainty = window.confirm(`Remove blog ${blog.title} by ${blog.author}`)
