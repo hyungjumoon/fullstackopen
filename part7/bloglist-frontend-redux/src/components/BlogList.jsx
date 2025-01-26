@@ -6,16 +6,9 @@ import Blog from './Blog'
 const BlogList = ({ user }) => {
   const dispatch = useDispatch()
 
-  const addLike = (id) => {
-    // blogService
-    //   .update(blogObject)
-    //   .then(returnedBlog => {
-    //     const updatedBlogs = blogs.filter(blog => blog.id !== returnedBlog.id)
-    //     setBlogs(updatedBlogs.concat(returnedBlog))
-    //   })
-    // dispatch(setNotification(`a like has been added to the blog ${returnedBlog.title} by ${returnedBlog.author} added`, 5))
-    dispatch(vote(id))
-    dispatch(setNotification(`a like has been added to the blog with id ${id}`, 5))
+  const addLike = (blogObject) => {
+    dispatch(vote(blogObject))
+    dispatch(setNotification(`a like has been added to the blog ${blogObject.title} by ${blogObject.author} added`, 5))
   }
 
   const remove = (id) => {

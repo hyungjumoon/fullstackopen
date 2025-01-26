@@ -6,19 +6,17 @@ import LoginForm from './components/LoginForm'
 import Togglable from './components/Togglable'
 import BlogList from './components/BlogList'
 
-import blogService from './services/blogs'
 import loginService from './services/login'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
-import { initializeBlogs } from './reducers/blogReducer'
+import { initializeBlogs, placeToken } from './reducers/blogReducer'
+import { setUser } from './reducers/userReducer'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
-  // const [errorMessage, setErrorMessage] = useState(null)
+  // const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
   const dispatch = useDispatch()
@@ -31,8 +29,8 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      dispatch(setUser(user))
+      dispatch(placeToken(user.token))
     }
   }, [])
 
@@ -45,39 +43,20 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
-      blogService.setToken(user.token)
-      setUser(user)
+      dispatch(placeToken(user.token))
+      dispatch(setUser(user))
       setUsername('')
       setPassword('')
     } catch (exception) {
       dispatch(setNotification('wrong username or password',5))
-      // setErrorMessage('wrong username or password')
-      // setTimeout(() => {
-      //   setErrorMessage(null)
-      // }, 5000)
     }
   }
 
   const logout = (event) => {
     event.preventDefault()
     window.localStorage.removeItem('loggedBlogappUser')
-    blogService.setToken(null)
-    setUser(null)
-  }
-
-  const addBlog = (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-    blogService
-      .create(blogObject)
-      .then(returnedBlog => {
-        // console.log(returnedBlog)
-        setBlogs(blogs.concat(returnedBlog))
-        dispatch(setNotification(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,5))
-        // setErrorMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
-        // setTimeout(() => {
-        //   setErrorMessage(null)
-        // }, 5000)
-      })
+    dispatch(placeToken(null))
+    dispatch(setUser(null))
   }
 
   const loginForm = () => (
@@ -94,12 +73,13 @@ const App = () => {
 
   const blogForm = () => (
     <Togglable buttonLabel='new blog' ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
+      <BlogForm blogFormRef={blogFormRef} />
     </Togglable>
   )
 
+  const user = useSelector(({ user }) => user)
+
   if (user !== null) {
-    blogs.sort((a,b) => b.likes - a.likes)
     return (
       <div>
         <h2>blogs</h2>

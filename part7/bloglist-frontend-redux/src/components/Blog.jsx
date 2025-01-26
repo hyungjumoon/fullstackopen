@@ -20,15 +20,15 @@ const Blog = ({ blog, putLike, removeBlog }) => {
 
   const addLike = (event) => {
     event.preventDefault()
-    // putLike({
-    //   title: blog.title,
-    //   author: blog.author,
-    //   url: blog.url,
-    //   likes: blog.likes+1,
-    //   user: blog.user.id,
-    //   path: blog.id
-    // })
-    putLike(blog.id)
+    putLike({
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: blog.likes+1,
+      user: blog.user.id,
+      path: blog.id
+    })
+    // putLike(blog.id)
   }
 
   const removeButton = () => {

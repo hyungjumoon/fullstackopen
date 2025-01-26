@@ -9,7 +9,7 @@ const blogSlice = createSlice({
       state.push(action.payload)
     },
     setBlogs(state, action) {
-      return [...action.payload].sort((a,b) => b.votes - a.votes)
+      return [...action.payload].sort((a,b) => b.likes - a.likes)
     }
   },
 })
@@ -38,17 +38,19 @@ export const removeBlog = id => {
   }
 }
 
-export const vote = id => {
+export const vote = updatedObject => {
   return async dispatch => {
-    const object = await blogService.get(id)
-    const updatedObject = { ...object, votes: object.votes+1 }
-    await blogService.update(id, updatedObject)
+    // const object = await blogService.get(id)
+    // const updatedObject = { ...object, votes: object.votes+1 }
+    await blogService.update(updatedObject)
     dispatch(initializeBlogs())
   }
 }
 
 export const placeToken = token => {
-  blogService.setToken(token)
+  return async dispatch => {
+    await blogService.setToken(token)
+  }
 }
 
 export default blogSlice.reducer

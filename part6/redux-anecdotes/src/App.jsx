@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import AnecdoteForm from './components/AnecdoteForm'
 import AnecdoteList from './components/AnecdoteList'
-import Filter from './components/FIlter'
+import Filter from './components/Filter'
 import Notification from './components/Notification'
 // import anecdoteService from './services/anecdotes'
 import { initializeAnecdotes } from './reducers/anecdoteReducer'
