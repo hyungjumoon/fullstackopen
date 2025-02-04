@@ -31,23 +31,7 @@ const loginReducer = (state, action) => {
   }
 }
 
-const UserList = () => {
-  const result = useQuery({
-    queryKey: ['users'],
-    queryFn: getUsers,
-    refetchOnWindowFocus: false,
-    // retry: 1
-  })
-
-  if ( result.isLoading ) {
-    return <div>loading user data...</div>
-  }
-  if ( result.isError ) {
-    return <div>user service is not available due to problems in server</div>
-  }
-
-  const users = result.data
-
+const UserList = ({ users }) => {
   return (
     <div>
       <h2>Users</h2>
@@ -55,8 +39,7 @@ const UserList = () => {
       <ul>
         {users.map(user =>
           <li key={user.id} >
-            <div>{user.name} {user.blogs.length} </div>
-            {/* <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link> */}
+            <div><Link to={`/users/${user.id}`}>{user.name}</Link> {user.blogs.length} </div>
           </li>
         )}
       </ul>
@@ -64,18 +47,21 @@ const UserList = () => {
   )
 }
 
-const User = ({ users, id }) => {
-  // const id = useParams().id
+const User = ({ users, blogs }) => {
+  const id = useParams().id
   const user = users.find(a => a.id === id)
+  const userBlogs = blogs.filter(b => b.user.id === id)
+  if (!user) {
+    return null
+  }
   return (
     <div>
       <h2>{user.name}</h2>
       <b>added blogs</b>
       <ul>
-        {user.blogs.map(blog =>
+        {userBlogs.map(blog =>
           <li key={blog.id} >
-            <div>{blog.id} </div>
-            {/* <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link> */}
+            <div>{blog.title} </div>
           </li>
         )}
       </ul>
@@ -83,24 +69,29 @@ const User = ({ users, id }) => {
   )
 }
 
-const App2 = () => {
-  const result = useQuery({
-    queryKey: ['users'],
-    queryFn: getUsers,
-    refetchOnWindowFocus: false,
-    // retry: 1
-  })
-
-  if ( result.isLoading ) {
-    return <div>loading user data...</div>
+const BlogView = ({ blogs, handleVote }) => {
+  const id = useParams().id
+  const blog = blogs.find(a => a.id === id)
+  const nameOfUser = blog.user ? blog.user.name : 'anonymous'
+  if (!blog) {
+    return null
   }
-  if ( result.isError ) {
-    return <div>user service is not available due to problems in server</div>
-  }
-
-  const users = result.data
-
-  return <User users={users} id={users[0].id} />
+  return (
+    <div>
+      <h2>{blog.title} by {blog.author}</h2>
+      <div><a href={blog.url}>{blog.url}</a></div>
+      <div>
+        {blog.likes} likes
+        <button
+          style={{ marginLeft: 3 }}
+          onClick={() => handleVote(blog)}
+        >
+          like
+        </button>
+      </div>
+      <div>added by {nameOfUser}</div>
+    </div>
+  )
 }
 
 const App = () => {
@@ -198,14 +189,51 @@ const App = () => {
     }
   }
 
-  if ( result.isLoading ) {
+  const result2 = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+    refetchOnWindowFocus: false,
+    // retry: 1
+  })
+
+
+  if ( result.isLoading || result2.isLoading ) {
     return <div>loading data...</div>
   }
-  if ( result.isError ) {
+  if ( result.isError || result2.isError ) {
     return <div>blog service is not available due to problems in server</div>
   }
   // console.log(result.data)
   const blogs = result.data
+  const usersData = result2.data
+
+  const byLikes = (a, b) => b.likes - a.likes
+
+  const oldBlogs = (
+    blogs.sort(byLikes).map(blog =>
+      <Blog
+        key={blog.id}
+        blog={blog}
+        handleVote={handleVote}
+        handleDelete={handleDelete}
+      />
+    )
+  )
+
+  const blogList = (
+    <div>
+      <div>
+        <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+          <NewBlog doCreate={addBlog} />
+        </Togglable>
+      </div>
+      <ul>
+        {blogs.sort(byLikes).map(blog =>
+          <li key={blog.id} ><Link to={`/blogs/${blog.id}`}>{blog.title}</Link></li>
+        )}
+      </ul>
+    </div>
+  )
 
   if (!user) {
     return (
@@ -217,10 +245,8 @@ const App = () => {
     )
   }
 
-  const byLikes = (a, b) => b.likes - a.likes
-
   return (
-    <div>
+    <Router>
       <h2>blogs</h2>
       <Notification />
       <div>
@@ -229,18 +255,13 @@ const App = () => {
           logout
         </button>
       </div>
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <NewBlog doCreate={addBlog} />
-      </Togglable>
-      {blogs.sort(byLikes).map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          handleVote={handleVote}
-          handleDelete={handleDelete}
-        />
-      )}
-    </div>
+      <Routes>
+        <Route path="/users/:id" element={<User users={usersData} blogs={blogs} />} />
+        <Route path="/users" element={<UserList users={usersData} />} />
+        <Route path="/" element={blogList} />
+        <Route path="/blogs/:id" element={<BlogView blogs={blogs} />} />
+      </Routes>
+    </Router>
   )
 }
 
