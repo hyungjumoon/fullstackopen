@@ -18,5 +18,10 @@ export const updateBlog = updatedBlog =>
   axios.put(`${baseUrl}/${updatedBlog.id}`, updatedBlog, getConfit()).then(res => res.data)
 
 export const deleteBlog = async (id) => {
-  axios.delete(`${baseUrl}/${id}`, getConfit()).then(res => res.data)
+  axios.delete(`${baseUrl}/${id}`, getConfit())
 }
+
+const userUrl = '/api/users'
+
+export const getUsers = () =>
+  axios.get(userUrl).then(res => res.data)

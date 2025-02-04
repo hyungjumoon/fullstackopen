@@ -11,7 +11,14 @@ import Togglable from './components/Togglable'
 
 import { useNotiDispatch } from './NotiContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getBlogs, createBlog, updateBlog, deleteBlog } from './requests'
+import { getBlogs, createBlog, updateBlog, deleteBlog, getUsers } from './requests'
+
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link,
+  useParams,
+  useNavigate
+} from 'react-router-dom'
 
 const loginReducer = (state, action) => {
   switch (action.type) {
@@ -24,25 +31,46 @@ const loginReducer = (state, action) => {
   }
 }
 
+const UserList = ({ users }) => {
+  const result = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+    refetchOnWindowFocus: false,
+    // retry: 1
+  })
+
+  if ( result.isLoading ) {
+    return <div>loading user data...</div>
+  }
+  if ( result.isError ) {
+    return <div>user service is not available due to problems in server</div>
+  }
+
+  return (
+    <div>
+      <h2>Users</h2>
+      <b>blogs created</b>
+      <ul>
+        {users.map(user =>
+          <li key={user.id} >
+            <div>{user.name} {user.blogs.length} </div>
+            {/* <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link> */}
+          </li>
+        )}
+      </ul>
+    </div>
+  )
+}
+
 const App = () => {
-  // const [blogs, setBlogs] = useState([])
-  // const [user, setUser] = useState(null)
-  // const [notification, setNotification] = useState(null)
   const [user, loginDispatch] = useReducer(loginReducer, null)
   const dispatch = useNotiDispatch()
   const queryClient = useQueryClient()
-
-  // useEffect(() => {
-  //   blogService.getAll().then(blogs =>
-  //     setBlogs(blogs)
-  //   )
-  // }, [])
 
   useEffect(() => {
     const user = storage.loadUser()
     if (user) {
       loginDispatch({ type: 'login', payload: user })
-      // setUser(user)
     }
   }, [])
 
@@ -62,18 +90,9 @@ const App = () => {
     // retry: 1
   })
 
-
-  // const notify = (message, type = 'success') => {
-  //   setNotification({ message, type })
-  //   setTimeout(() => {
-  //     setNotification(null)
-  //   }, 5000)
-  // }
-
   const handleLogin = async (credentials) => {
     try {
       const user = await loginService.login(credentials)
-      // setUser(user)
       loginDispatch({ type: 'login', payload: user })
       storage.saveUser(user)
       notify(`Welcome back, ${user.name}`)
@@ -87,8 +106,6 @@ const App = () => {
     onSuccess: (newBlog) => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       notify(`Blog created: ${newBlog.title}, ${newBlog.author}`)
-      // const anecdotes = queryClient.getQueryData(['anecdotes'])
-      // queryClient.setQueryData(['notes'], anecdotes.concat(newAnecdote))
     },
     onError: () => {
       notify('blog creation error', 'error')
@@ -96,19 +113,9 @@ const App = () => {
   })
 
   const addBlog = async (blog) => {
-    // event.preventDefault()
-    // const content = event.target.anecdote.value
-    // event.target.anecdote.value = ''
     newBlogMutation.mutate(blog)
     blogFormRef.current.toggleVisibility()
   }
-
-  // const handleCreate = async (blog) => {
-  //   const newBlog = await blogService.create(blog)
-  //   setBlogs(blogs.concat(newBlog))
-  //   notify(`Blog created: ${newBlog.title}, ${newBlog.author}`)
-  //   blogFormRef.current.toggleVisibility()
-  // }
 
   const updateBlogMutation = useMutation({
     mutationFn: updateBlog,
@@ -126,19 +133,7 @@ const App = () => {
     updateBlogMutation.mutate({ ...blog, likes: blog.likes+1 })
   }
 
-  // const handleVote = async (blog) => {
-  //   console.log('updating', blog)
-  //   const updatedBlog = await blogService.update(blog.id, {
-  //     ...blog,
-  //     likes: blog.likes + 1
-  //   })
-
-  //   notify(`You liked ${updatedBlog.title} by ${updatedBlog.author}`)
-  //   setBlogs(blogs.map(b => b.id === blog.id ? updatedBlog : b))
-  // }
-
   const handleLogout = () => {
-    // setUser(null)
     loginDispatch({ type: 'logout' })
     storage.removeUser()
     notify(`Bye, ${user.name}!`)
@@ -159,17 +154,8 @@ const App = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
     //   console.log('updating', blog)
       deleteBlogMutation.mutate(blog.id)
-      // queryClient.invalidateQueries({ queryKey: ['blogs'] })
-      // notify(`Blog ${blog.title}, by ${blog.author} removed`)
     }
   }
-
-  // const handleDelete = async (blog) => {
-  //   if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-  //     await blogService.remove(blog.id)
-  //     setBlogs(blogs.filter(b => b.id !== blog.id))
-  //   }
-  // }
 
   if ( result.isLoading ) {
     return <div>loading data...</div>
