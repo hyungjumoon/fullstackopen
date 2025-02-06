@@ -76,9 +76,21 @@ const BlogView = ({ blogs, handleVote }) => {
   if (!blog) {
     return null
   }
+  const Comments = () => {
+    if (!blog.comments) {
+      return null
+    }
+    return (
+      <ul>
+        {blog.comments.map(com =>
+          <li key={blog.id + com}>{com}</li>
+        )}
+      </ul>
+    )
+  }
   return (
     <div>
-      <h2>{blog.title} by {blog.author}</h2>
+      <h1>{blog.title} by {blog.author}</h1>
       <div><a href={blog.url}>{blog.url}</a></div>
       <div>
         {blog.likes} likes
@@ -90,6 +102,8 @@ const BlogView = ({ blogs, handleVote }) => {
         </button>
       </div>
       <div>added by {nameOfUser}</div>
+      <h2>comments</h2>
+      <Comments />
     </div>
   )
 }

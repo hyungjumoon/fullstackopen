@@ -31,7 +31,8 @@ blogsRouter.post('/', async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user.id
+    user: user.id,
+    comments : []
   })
   const savedBlog = await blog.save()
   savedBlog.populate('user', { username: 1, name: 1 })
@@ -64,7 +65,8 @@ blogsRouter.put('/:id', async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes,
-    user: user.id
+    user: user.id,
+    comments: body.comments
   })
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
     .populate('user', { username: 1, name: 1 })
