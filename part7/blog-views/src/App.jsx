@@ -94,6 +94,18 @@ const BlogView = ({ blogs, handleVote }) => {
   )
 }
 
+const Header = () => {
+  const padding = {
+    padding : 5
+  }
+  return (
+    <div>
+      <Link style={padding} to="/">blogs</Link>
+      <Link style={padding} to="/users">users</Link>
+    </div>
+  )
+}
+
 const App = () => {
   const [user, loginDispatch] = useReducer(loginReducer, null)
   const dispatch = useNotiDispatch()
@@ -238,6 +250,7 @@ const App = () => {
   if (!user) {
     return (
       <div>
+        {/* <Header /> */}
         <h2>blogs</h2>
         <Notification />
         <Login doLogin={handleLogin} />
@@ -247,6 +260,7 @@ const App = () => {
 
   return (
     <Router>
+      <Header />
       <h2>blogs</h2>
       <Notification />
       <div>
@@ -259,7 +273,7 @@ const App = () => {
         <Route path="/users/:id" element={<User users={usersData} blogs={blogs} />} />
         <Route path="/users" element={<UserList users={usersData} />} />
         <Route path="/" element={blogList} />
-        <Route path="/blogs/:id" element={<BlogView blogs={blogs} />} />
+        <Route path="/blogs/:id" element={<BlogView blogs={blogs} handleVote={handleVote} />} />
       </Routes>
     </Router>
   )
