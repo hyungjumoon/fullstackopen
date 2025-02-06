@@ -69,10 +69,22 @@ const User = ({ users, blogs }) => {
   )
 }
 
-const BlogView = ({ blogs, handleVote }) => {
+const BlogView = ({ blogs, handleVote, handlePut }) => {
   const id = useParams().id
   const blog = blogs.find(a => a.id === id)
   const nameOfUser = blog.user ? blog.user.name : 'anonymous'
+  const [newCom, setNewCom] = useState('')
+
+  const handleNewComChange = (event) => {
+    setNewCom(event.target.value)
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    handlePut(blog, newCom)
+    setNewCom('')
+  }
+
   if (!blog) {
     return null
   }
@@ -103,6 +115,17 @@ const BlogView = ({ blogs, handleVote }) => {
       </div>
       <div>added by {nameOfUser}</div>
       <h2>comments</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <input
+            type="text"
+            data-testid='newCom'
+            value={newCom}
+            onChange={handleNewComChange}
+          />
+        </div>
+        <button type="submit">add comment</button>
+      </form>
       <Comments />
     </div>
   )
@@ -189,6 +212,11 @@ const App = () => {
   const handleVote = (blog) => {
     //   console.log('updating', blog)
     updateBlogMutation.mutate({ ...blog, likes: blog.likes+1 })
+  }
+
+  const handleComment = (blog, com) => {
+    //   console.log('updating', blog)
+    updateBlogMutation.mutate({ ...blog, likes: blog.likes+1, comments: blog.comments.concat([com]) })
   }
 
   const handleLogout = () => {
@@ -287,7 +315,7 @@ const App = () => {
         <Route path="/users/:id" element={<User users={usersData} blogs={blogs} />} />
         <Route path="/users" element={<UserList users={usersData} />} />
         <Route path="/" element={blogList} />
-        <Route path="/blogs/:id" element={<BlogView blogs={blogs} handleVote={handleVote} />} />
+        <Route path="/blogs/:id" element={<BlogView blogs={blogs} handleVote={handleVote} handlePut={handleComment} />} />
       </Routes>
     </Router>
   )
