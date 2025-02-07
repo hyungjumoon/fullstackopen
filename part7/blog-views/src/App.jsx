@@ -8,6 +8,7 @@ import Blog from './components/Blog'
 import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import Header from './components/Header'
 
 import { useNotiDispatch } from './NotiContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -17,8 +18,18 @@ import {
   BrowserRouter as Router,
   Routes, Route, Link,
   useParams,
-  useNavigate
 } from 'react-router-dom'
+
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Paper,
+  TableHead,
+} from '@mui/material'
 
 const loginReducer = (state, action) => {
   switch (action.type) {
@@ -35,14 +46,32 @@ const UserList = ({ users }) => {
   return (
     <div>
       <h2>Users</h2>
-      <b>blogs created</b>
-      <ul>
-        {users.map(user =>
-          <li key={user.id} >
-            <div><Link to={`/users/${user.id}`}>{user.name}</Link> {user.blogs.length} </div>
-          </li>
-        )}
-      </ul>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                User
+              </TableCell>
+              <TableCell>
+                blogs created
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map(user => (
+              <TableRow key={user.id}>
+                <TableCell>
+                  <Link to={`/users/${user.id}`}>{user.name}</Link>
+                </TableCell>
+                <TableCell>
+                  {user.blogs.length}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   )
 }
@@ -131,17 +160,6 @@ const BlogView = ({ blogs, handleVote, handlePut }) => {
   )
 }
 
-const Header = () => {
-  const padding = {
-    padding : 5
-  }
-  return (
-    <div>
-      <Link style={padding} to="/">blogs</Link>
-      <Link style={padding} to="/users">users</Link>
-    </div>
-  )
-}
 
 const App = () => {
   const [user, loginDispatch] = useReducer(loginReducer, null)
@@ -160,7 +178,7 @@ const App = () => {
   const notify = (content, type = 'success') => {
     dispatch({ type: type, payload: content })
     setTimeout(() => {
-      dispatch({ type: 'clear', payload: null })
+      dispatch({ type: '', payload: null })
     }, 5000)
   }
 
@@ -276,23 +294,50 @@ const App = () => {
 
   const blogList = (
     <div>
+      <h2>blogs</h2>
       <div>
         <Togglable buttonLabel="create new blog" ref={blogFormRef}>
           <NewBlog doCreate={addBlog} />
         </Togglable>
       </div>
-      <ul>
-        {blogs.sort(byLikes).map(blog =>
-          <li key={blog.id} ><Link to={`/blogs/${blog.id}`}>{blog.title}</Link></li>
-        )}
-      </ul>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                Blog
+              </TableCell>
+              <TableCell>
+                Author
+              </TableCell>
+              <TableCell>
+                Likes
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {blogs.map(blog => (
+              <TableRow key={blog.id}>
+                <TableCell>
+                  <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                </TableCell>
+                <TableCell>
+                  {blog.author}
+                </TableCell>
+                <TableCell>
+                  {blog.likes}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   )
 
   if (!user) {
     return (
       <div>
-        {/* <Header /> */}
         <h2>blogs</h2>
         <Notification />
         <Login doLogin={handleLogin} />
@@ -301,23 +346,18 @@ const App = () => {
   }
 
   return (
-    <Router>
-      <Header />
-      <h2>blogs</h2>
-      <Notification />
-      <div>
-        {user.name} logged in
-        <button onClick={handleLogout}>
-          logout
-        </button>
-      </div>
-      <Routes>
-        <Route path="/users/:id" element={<User users={usersData} blogs={blogs} />} />
-        <Route path="/users" element={<UserList users={usersData} />} />
-        <Route path="/" element={blogList} />
-        <Route path="/blogs/:id" element={<BlogView blogs={blogs} handleVote={handleVote} handlePut={handleComment} />} />
-      </Routes>
-    </Router>
+    <Container>
+      <Router>
+        <Header user={user} logout={handleLogout} />
+        <Notification />
+        <Routes>
+          <Route path="/users/:id" element={<User users={usersData} blogs={blogs} />} />
+          <Route path="/users" element={<UserList users={usersData} />} />
+          <Route path="/" element={blogList} />
+          <Route path="/blogs/:id" element={<BlogView blogs={blogs} handleVote={handleVote} handlePut={handleComment} />} />
+        </Routes>
+      </Router>
+    </Container>
   )
 }
 
