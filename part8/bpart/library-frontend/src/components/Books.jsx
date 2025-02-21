@@ -22,7 +22,7 @@ const Books = (props) => {
           <tr>
             <th></th>
             <th>author</th>
-            <th>author born</th>
+            <th>born</th>
             <th>published</th>
           </tr>
           {books.map((a) => (

@@ -8,14 +8,12 @@ const YearForm = ({ authors }) => {
   const [year, setYear] = useState('')
   const [selectedAuthor, setSelectedAuthor] = useState('')
 
-
   const [ changeYear, result ] = useMutation(EDIT_YEAR,{
     refetchQueries: [ { query: ALL_AUTHORS } ]
   })
 
   const submit = (event) => {
     event.preventDefault()
-
     changeYear({ variables: { name: selectedAuthor, setBornTo: Number(year) } })
 
     setYear('')
