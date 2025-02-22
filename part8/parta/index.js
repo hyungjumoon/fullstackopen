@@ -187,7 +187,7 @@ const resolvers = {
         return await Book.find({ author : curAuthor }).populate('author')
       }
       if (!args.author) {
-        return await Book.find({  }).populate('author')
+        return await Book.find({ genres: args.genre }).populate('author')
       }
       const curAuthor = await Author.findOne({ name: args.author })
       return await Book.find({ author : curAuthor, genres: args.genre }).populate('author')

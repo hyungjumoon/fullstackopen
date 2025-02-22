@@ -17,20 +17,20 @@ query {
       name
     }
     published
+    genres
   }
 }
 `
 
-export const FIND_PERSON = gql`
-  query findPersonByName($nameToSearch: String!) {
-    findPerson(name: $nameToSearch) {
-      name
-      phone
-      id
-      address {
-        street
-        city
+export const FIND_GENRE = gql`
+  query findBooksGenre($genreToSearch: String!) {
+    allBooks(genre: $genreToSearch) {
+      title
+      author {
+        name
       }
+      published
+      genres
     }
   }
 `
