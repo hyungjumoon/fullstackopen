@@ -1,24 +1,50 @@
-import { useState } from 'react' 
+import { useEffect, useState } from 'react' 
 import { useQuery } from '@apollo/client'
-import { ALL_BOOKS } from '../queries'
+import { ALL_BOOKS, FIND_GENRE } from '../queries'
+
+const Genres = ({ setGenre, refetch }) => {
+  const result = useQuery(ALL_BOOKS) 
+  if (result.loading || !result.data || !result.data.allBooks) {
+    return <div>genres are loading</div>
+  }
+  const books = result.data.allBooks
+  
+  let genreset = new Set()
+  books.map(b => {b.genres.map(genre => genreset.add(genre))})
+  const genres = [...genreset]
+  const click = (g) => {
+    setGenre(g)
+    console.log(g)
+    refetch({ genre: g })
+  }
+  return (
+    <div>
+      {genres.map((g) => (
+        <button key={g} onClick={() => click(g)}>{g}</button>
+      ))}
+      <button onClick={() => click('')}>all genres</button>
+    </div>
+  )
+}
 
 const Books = (props) => {
-  const result = useQuery(ALL_BOOKS)
   const [genre, setGenre] = useState('')
-
+  // const [books, setBooks] = useState([])
+  
+  const result = useQuery(FIND_GENRE, {
+    variables: { genreToSearch: genre }
+  }) 
   if (!props.show) {
     return null
   }
   if (result.loading || !result.data || !result.data.allBooks) {
     return <div>books are loading</div>
   }
+  console.log(result.data)
+  const filterBooks = result.data.allBooks
 
-  const books = result.data.allBooks
-  let genreset = new Set()
-  books.map(b => {b.genres.map(genre => genreset.add(genre))})
-  const genres = [...genreset]
-  // console.log(genres)
-  const filterBooks = books.filter(b => (genre === '' || b.genres.includes(genre)))
+  // const filterBooks = books.filter(b => (genre === '' || b.genres.includes(genre)))
+
   return (
     <div>
       <h2>books</h2>
@@ -41,12 +67,7 @@ const Books = (props) => {
           ))}
         </tbody>
       </table>
-      <div>
-        {genres.map((g) => (
-          <button key={g} onClick={() => setGenre(g)}>{g}</button>
-        ))}
-        <button onClick={() => setGenre('')}>all genres</button>
-      </div>
+      <Genres setGenre={setGenre} refetch={result.refetch} />
     </div>
   )
 }

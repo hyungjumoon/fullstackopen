@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
@@ -36,7 +36,7 @@ const App = () => {
     localStorage.clear()
     client.resetStore()
   }
-  
+
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
       // window.alert('book added', data)
