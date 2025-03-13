@@ -8,6 +8,30 @@ interface Result {
   average: number;
 };
 
+interface ExerciseValues {
+  values: number[];
+  target: number;
+}
+
+const parseNumbers = (args: string[]): ExerciseValues => {
+  if (args.length < 4) throw new Error('Not enough arguments');
+  var target : number;
+  if (!isNaN(Number(args[2]))) {
+    target = Number(args[2])
+  }
+  console.log(target)
+  var i : number = 3;
+  var nums:number[] = new Array(args.length-3)  
+  for(i; i < args.length; i++) {
+    if (!isNaN(Number(args[i]))) {
+      nums[i-3] = Number(args[i])
+    } else {
+      throw new Error('Provided values were not numbers!');
+    }
+  }
+  return {values: nums, target: target}
+}
+
 const calculateExercises = (a: number[], t: number) : Object => {
   let ans: Result = {
     periodLength: a.length,
@@ -31,7 +55,9 @@ const calculateExercises = (a: number[], t: number) : Object => {
 }
 
 try {
-  console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+  const { values, target } = parseNumbers(process.argv);
+  // console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+  console.log(calculateExercises(values, target));
 } catch (error: unknown) {
   let errorMessage = 'Something went wrong: '
   if (error instanceof Error) {
