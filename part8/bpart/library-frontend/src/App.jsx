@@ -41,7 +41,7 @@ const App = () => {
     onData: ({ data }) => {
       // window.alert('book added', data)
       const addedBook = data.data.bookAdded
-      console.log(data)
+      console.log('book has been added')
       updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
     }
   })

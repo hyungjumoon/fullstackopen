@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react' 
+import { useState } from 'react' 
 import { useQuery } from '@apollo/client'
-import { ALL_BOOKS, FIND_GENRE } from '../queries'
+import { ALL_BOOKS } from '../queries'
 
-const Genres = ({ setGenre, refetch }) => {
-  const result = useQuery(ALL_BOOKS) 
+const Genres = ({ setGenre }) => {
+  const result = useQuery(ALL_BOOKS, {
+    variables: { genreToSearch: '' }
+  }) 
   if (result.loading || !result.data || !result.data.allBooks) {
     return <div>genres are loading</div>
   }
@@ -14,8 +16,6 @@ const Genres = ({ setGenre, refetch }) => {
   const genres = [...genreset]
   const click = (g) => {
     setGenre(g)
-    console.log(g)
-    refetch({ genre: g })
   }
   return (
     <div>
@@ -31,7 +31,7 @@ const Books = (props) => {
   const [genre, setGenre] = useState('')
   // const [books, setBooks] = useState([])
   
-  const result = useQuery(FIND_GENRE, {
+  const result = useQuery(ALL_BOOKS, {
     variables: { genreToSearch: genre }
   }) 
   if (!props.show) {
@@ -40,7 +40,7 @@ const Books = (props) => {
   if (result.loading || !result.data || !result.data.allBooks) {
     return <div>books are loading</div>
   }
-  console.log(result.data)
+  // console.log(result.data)
   const filterBooks = result.data.allBooks
 
   // const filterBooks = books.filter(b => (genre === '' || b.genres.includes(genre)))
@@ -67,7 +67,7 @@ const Books = (props) => {
           ))}
         </tbody>
       </table>
-      <Genres setGenre={setGenre} refetch={result.refetch} />
+      <Genres setGenre={setGenre}  />
     </div>
   )
 }
