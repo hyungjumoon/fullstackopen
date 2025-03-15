@@ -3,7 +3,7 @@ interface MultiplyValues {
   value2: number;
 }
 
-const calculateBmi = (a: number, b: number) : string => {
+export const calculateBmi = (a: number, b: number) : string => {
   const bmi : number = b/(a/100)/(a/100);
   if (bmi <= 18.4) {
     return 'Underweight';
