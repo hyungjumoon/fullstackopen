@@ -12,9 +12,9 @@ export const calculateBmi = (a: number, b: number) : string => {
   } else if (bmi <= 29.9) {
     return 'Overweight';
   } else {
-    return 'Obese'
+    return 'Obese';
   }
-}
+};
 
 const parseArguments = (args: string[]): MultiplyValues => {
   if (args.length < 4) throw new Error('Not enough arguments');
@@ -24,17 +24,17 @@ const parseArguments = (args: string[]): MultiplyValues => {
     return {
       value1: Number(args[2]),
       value2: Number(args[3])
-    }
+    };
   } else {
     throw new Error('Provided values were not numbers!');
   }
-}
+};
 
 try {
   const { value1, value2 } = parseArguments(process.argv);
-  console.log(calculateBmi(value1, value2))
+  console.log(calculateBmi(value1, value2));
 } catch (error: unknown) {
-  let errorMessage = 'Something bad happened.'
+  let errorMessage = 'Something bad happened.';
   if (error instanceof Error) {
     errorMessage += ' Error: ' + error.message;
   }
