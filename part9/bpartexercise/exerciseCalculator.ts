@@ -31,7 +31,7 @@ const parseNumbers = (args: string[]): ExerciseValues => {
   return {values: nums, target: target};
 };
 
-const calculateExercises = (a: number[], t: number) : Result => {
+export const calculateExercises = (a: number[], t: number) : Result => {
   const ans: Result = {
     periodLength: a.length,
     trainingDays: a.filter(i => i > 0).length,
