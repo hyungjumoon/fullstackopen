@@ -3,7 +3,7 @@ import diagnosesRouter from './routes/diagnoses';
 import patientsRouter from './routes/patients';
 import cors from 'cors';
 
-const app = express()
+const app = express();
 app.use(express.json());
 ;
 app.use(cors());
