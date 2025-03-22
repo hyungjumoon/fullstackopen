@@ -11,8 +11,6 @@ patientsRouter.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
 });
 
 patientsRouter.post('/', (req, res) => {
-
-  
   try {
     const newPatient = toNewPatient(req.body);
     const addedPatient = patientService.addPatient(newPatient);
