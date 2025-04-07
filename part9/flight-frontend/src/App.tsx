@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
 import { DiaryEntry } from "./types";
 import { getAllDiaryEntries, createDiaryEntry } from "./diaryService";
+import toNewDiaryEntry from "./utils";
 
 const App = () => {
   const [diary, setDiary] = useState<DiaryEntry[]>([]);
-  // const [newDiary, setNewDiary] = useState('');
+  const [date, setDate] = useState("");
+  const [visibility, setVisibility] = useState("");
+  const [weather, setWeather] = useState("");
+  const [comment, setComment] = useState("");
+
 
   useEffect(() => {
     getAllDiaryEntries().then(data => {
@@ -12,21 +17,33 @@ const App = () => {
     })
   }, [])
 
-  // const noteCreation = (event: React.SyntheticEvent) => {
-  //   event.preventDefault()
-  //   createNote({ content: newNote }).then(data => {
-  //     setNotes(notes.concat(data))
-  //   })
+  const diaryCreation = (event: React.SyntheticEvent) => {
+    event.preventDefault()
+    createDiaryEntry(toNewDiaryEntry({
+      date: date,
+      weather: weather,
+      visibility: visibility,
+      comment: comment
+    })).then(data => {
+      setDiary(diary.concat(data))
+    })
 
-  //   setNewNote('')
-  // };
+    setDate("")
+    setVisibility("")
+    setWeather("")
+    setComment("")
+  };
 
   return (
     <div>
-      {/* <form onSubmit={noteCreation}>
-        <input value={newNote} onChange={(event) => setNewNote(event.target.value)} />
+      <h2>Add new Entry</h2>
+      <form onSubmit={diaryCreation}>
+        date <input value={date} onChange={(event) => setDate(event.target.value)} /> <br />
+        visibility <input value={visibility} onChange={(event) => setVisibility(event.target.value)} /> <br />
+        weather <input value={weather} onChange={(event) => setWeather(event.target.value)} /> <br />
+        comment <input value={comment} onChange={(event) => setComment(event.target.value)} /> <br />
         <button type='submit'>add</button>
-      </form> */}
+      </form>
       <h2>Diary Entries</h2>
       {diary.map(entry =>
         <div>
