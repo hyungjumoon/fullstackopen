@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DiaryEntry } from "./types";
 import { getAllDiaryEntries, createDiaryEntry } from "./diaryService";
 import toNewDiaryEntry from "./utils";
+import { isAxiosError } from "axios";
 
 const App = () => {
   const [diary, setDiary] = useState<DiaryEntry[]>([]);
@@ -9,7 +10,7 @@ const App = () => {
   const [visibility, setVisibility] = useState("");
   const [weather, setWeather] = useState("");
   const [comment, setComment] = useState("");
-
+  const [noti, setNoti] = useState("hi");
 
   useEffect(() => {
     getAllDiaryEntries().then(data => {
@@ -17,16 +18,29 @@ const App = () => {
     })
   }, [])
 
-  const diaryCreation = (event: React.SyntheticEvent) => {
+  const diaryCreation = async (event: React.SyntheticEvent) => {
     event.preventDefault()
-    createDiaryEntry(toNewDiaryEntry({
-      date: date,
-      weather: weather,
-      visibility: visibility,
-      comment: comment
-    })).then(data => {
-      setDiary(diary.concat(data))
-    })
+    
+    try {
+      const response = await createDiaryEntry(toNewDiaryEntry({
+        date: date,
+        weather: weather,
+        visibility: visibility,
+        comment: comment
+      }))
+      setDiary(diary.concat(response))
+    } catch (error) {
+      if (isAxiosError(error)) {
+        console.log(error.status);
+        console.error(error.response);
+      } else {
+        console.error(error);
+        setNoti(`${error}`);
+        setTimeout(() => {
+          setNoti("")
+        }, 5000);
+      }
+    }
 
     setDate("")
     setVisibility("")
@@ -37,6 +51,7 @@ const App = () => {
   return (
     <div>
       <h2>Add new Entry</h2>
+      <div style={{color:"red"}}>{noti}</div> <br />
       <form onSubmit={diaryCreation}>
         date <input value={date} onChange={(event) => setDate(event.target.value)} /> <br />
         visibility <input value={visibility} onChange={(event) => setVisibility(event.target.value)} /> <br />
@@ -46,7 +61,7 @@ const App = () => {
       </form>
       <h2>Diary Entries</h2>
       {diary.map(entry =>
-        <div>
+        <div key={entry.id}>
           <h3>{entry.date}</h3>
           visibility: {entry.visibility} <br />
           weather: {entry.weather}
