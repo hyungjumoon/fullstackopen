@@ -10,7 +10,7 @@ const App = () => {
   const [visibility, setVisibility] = useState("");
   const [weather, setWeather] = useState("");
   const [comment, setComment] = useState("");
-  const [noti, setNoti] = useState("hi");
+  const [noti, setNoti] = useState("");
 
   useEffect(() => {
     getAllDiaryEntries().then(data => {
@@ -53,9 +53,22 @@ const App = () => {
       <h2>Add new Entry</h2>
       <div style={{color:"red"}}>{noti}</div> <br />
       <form onSubmit={diaryCreation}>
-        date <input value={date} onChange={(event) => setDate(event.target.value)} /> <br />
-        visibility <input value={visibility} onChange={(event) => setVisibility(event.target.value)} /> <br />
-        weather <input value={weather} onChange={(event) => setWeather(event.target.value)} /> <br />
+        date <input value={date} onChange={(event) => setDate(event.target.value)} type="date"/> <br />
+        <div>
+          visibility 
+          great <input type="radio" name="visibility" onChange={() => setVisibility("great")} />
+          good <input type="radio" name="visibility" onChange={() => setVisibility("good")} />
+          ok <input type="radio" name="visibility" onChange={() => setVisibility("ok")} />
+          poor <input type="radio" name="visibility" onChange={() => setVisibility("poor")} />
+        </div>
+        <div>
+          weather
+          sunny <input type="radio" name="weather" onChange={() => setWeather("sunny")} />
+          rainy <input type="radio" name="weather" onChange={() => setWeather("rainy")} />
+          cloudy <input type="radio" name="weather" onChange={() => setWeather("cloudy")} />
+          stormy <input type="radio" name="weather" onChange={() => setWeather("stormy")} />
+          windy <input type="radio" name="weather" onChange={() => setWeather("windy")} />
+        </div>
         comment <input value={comment} onChange={(event) => setComment(event.target.value)} /> <br />
         <button type='submit'>add</button>
       </form>
