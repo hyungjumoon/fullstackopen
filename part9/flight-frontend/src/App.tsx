@@ -42,10 +42,10 @@ const App = () => {
       }
     }
 
-    setDate("")
-    setVisibility("")
-    setWeather("")
-    setComment("")
+    setDate("");
+    setVisibility("");
+    setWeather("");
+    setComment("");
   };
 
   return (
