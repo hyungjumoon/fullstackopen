@@ -27,6 +27,16 @@ patientsRouter.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
   res.send(patientService.getPatients());
 });
 
+
+patientsRouter.get('/:id', (req: Request<{ id: string }>, res: Response<Patient>) => {
+  const patient : Patient | undefined = patientService.getPatient(req.params.id);
+  if (patient === undefined) {
+    res.status(404).send();
+  } else {
+    res.send(patient);
+  }
+});
+
 patientsRouter.post('/', newPatientParser, (req: Request<unknown, unknown, NewPatientZ>, res: Response<Patient>) => {
   const addedPatient = patientService.addPatient(req.body);
   res.json(addedPatient);

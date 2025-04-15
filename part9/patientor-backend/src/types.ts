@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { newPatientSchema } from './utils'
+import { newPatientSchema } from './utils';
 
 export enum Gender {
   Male = 'male',
@@ -13,17 +13,34 @@ export interface Diagnosis {
   latin?: string;
 }
 
+// export interface Patient {
+//   id: string;
+//   name: string;
+//   dateOfBirth: string;
+//   ssn: string;
+//   gender: Gender;
+//   occupation: string;
+// }
+
+// export type NonSensitivePatient = Omit<Patient, 'ssn'>;
+ 
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface Entry {
+}
+
 export interface Patient {
   id: string;
   name: string;
-  dateOfBirth: string;
   ssn: string;
-  gender: Gender;
   occupation: string;
+  gender: Gender;
+  dateOfBirth: string;
+  entries: Entry[]
 }
-
-export type NonSensitivePatient = Omit<Patient, 'ssn'>;
 
 export type NewPatient = Omit<Patient, 'id'>;
 
-export type NewPatientZ = z.infer<typeof newPatientSchema>; 
+export type NewPatientZ = z.infer<typeof newPatientSchema>;
+
+export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entries'>;
